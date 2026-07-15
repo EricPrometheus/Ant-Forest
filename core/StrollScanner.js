@@ -109,17 +109,25 @@ const StrollScanner = function () {
         region = [_config.stroll_button_left, _config.stroll_button_top, _config.stroll_button_width, _config.stroll_button_height]
       }
     }
+    let firstRound = true
     while (hasNext) {
       if (this.duplicateChecker.checkIsAllDuplicated()) {
         debugInfo('全部都在白名单，没有可以逛一逛的了')
         break
       }
-      debugInfo(['逛下一个, click random region: [{}]', JSON.stringify(region)])
-      this.visualHelper.addRectangle('准备点击下一个', region)
-      WarningFloaty.addRectangle('逛一逛按钮区域', region, '#00ff00')
-      this.visualHelper.displayAndClearAll()
-      // 直接点击中间位置
-      automator.click(region[0] + region[2] / 2, region[1] + region[3] / 2)
+      if (firstRound) {
+        // 首次入口：点"找能量"按钮进入第一个好友
+        debugInfo(['首次入口, click 找能量按钮区域: [{}]', JSON.stringify(region)])
+        this.visualHelper.addRectangle('准备点击找能量', region)
+        WarningFloaty.addRectangle('逛一逛按钮区域', region, '#00ff00')
+        this.visualHelper.displayAndClearAll()
+        automator.click(region[0] + region[2] / 2, region[1] + region[3] / 2)
+        firstRound = false
+      } else {
+        // 好友间转场：新版改为向下滑动跳到下一个好友（原为点击逛一逛按钮，新版按钮点了不跳）
+        debugInfo('滑动到下一个好友')
+        automator.randomScrollDown()
+      }
       sleep(300)
       hasNext = this.collectTargetFriend()
     }
