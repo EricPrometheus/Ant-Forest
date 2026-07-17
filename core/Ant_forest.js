@@ -1390,6 +1390,67 @@ function Ant_forest () {
         executor = new CountdownExecutor()
       }
       executor.execute()
+    },
+    /**
+     * 单次收取自身能量（Issue #4 子流程接口）
+     *
+     * 为什么放在这里：collectOwn / getPostEnergy 是闭包私有函数，
+     * 外部无法直接调用。直接在这里新增公开方法，复用已有打开首页、
+     * 收能量、统计能量差值的完整流程，避免在 sub_processes.js 里
+     * 重写一份导致逻辑分叉。
+     *
+     * @returns {{success: boolean, energy_gained: number, error: string}}
+     */
+    collectOwnEnergy: function () {
+      let energyBefore = _post_energy || 0
+      let result = { success: false, energy_gained: 0, error: '' }
+      try {
+        _fisrt_running = true
+        _has_next = false
+        openAndWaitForPersonalHome()
+        collectOwn()
+        getPostEnergy(false)
+        result.energy_gained = _post_energy - _pre_energy
+        result.success = true
+      } catch (e) {
+        _commonFunctions.printExceptionStack(e)
+        result.error = e + ''
+      }
+      return result
+    },
+    /**
+     * 单次逛一逛收集好友能量（Issue #4 子流程接口）
+     *
+     * 复用内部 tryCollectByStroll：需要先打开森林首页获取前置能量值，
+     * 再执行逛一逛扫描，最后统计能量差值。
+     *
+     * @returns {{success: boolean, energy_gained: number, error: string}}
+     */
+    stroll: function () {
+      let result = { success: false, energy_gained: 0, error: '' }
+      try {
+        _fisrt_running = true
+        _has_next = false
+        openAndWaitForPersonalHome()
+        // 逛一逛前记录起始能量
+        _pre_energy = getCurrentEnergy()
+        _post_energy = _pre_energy
+        let strollResult = tryCollectByStroll(false)
+        if (strollResult) {
+          // 回到首页后获取最终能量值
+          if (_widgetUtils.homePageWaiting()) {
+            _post_energy = getCurrentEnergy(true)
+          }
+          result.energy_gained = _post_energy - _pre_energy
+          result.success = true
+        } else {
+          result.error = '逛一逛执行异常'
+        }
+      } catch (e) {
+        _commonFunctions.printExceptionStack(e)
+        result.error = e + ''
+      }
+      return result
     }
   }
 }
