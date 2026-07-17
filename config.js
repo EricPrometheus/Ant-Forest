@@ -238,6 +238,15 @@ let default_config = {
   ai_type: 'kimi',// 可选 kimi、chatgml
   kimi_api_key: '',
   chatgml_api_key: '',
+  // 视觉语言模型（VL）配置 —— 用于 AI Agent 决策大脑
+  // vl_provider: 国产 VL 服务商，可选 qwen（通义千问 VL）/ glm（智谱 GLM-4V）
+  vl_provider: 'qwen',
+  // vl_api_key: 对应服务商的 API Key，需用户自行申请填写
+  vl_api_key: '',
+  // vl_model: 模型名，留空则用各 provider 默认值（qwen-vl-plus / glm-4v）
+  vl_model: 'qwen-vl-plus',
+  // vl_endpoint: API 地址，留空用默认，填写可覆盖（如私有部署/代理）
+  vl_endpoint: '',
   // 代码版本
   code_version: 'v1.5.5.4',
   notificationId: 133,
