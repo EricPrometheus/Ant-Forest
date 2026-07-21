@@ -481,6 +481,15 @@ const BaseScanner = function () {
           }
         )
         debugInfo(['找到的球:{}', JSON.stringify(findBalls)])
+        // 霍夫圆心偏上补偿：能量球发光球+下部能量值数字，圆心系统性偏上，往下补偿
+        // Why: findCircles 返回的圆心比真实球中心高，导致 addCircle 画的圈和 operateCollect 点击都偏上。
+        //      在源头给 ball.y 加偏移，下游画圆/点击/区域判断（doDetectCollectableBalls）一致往下移。
+        let _ballOffsetY = _config.ball_center_offset_y != null ? _config.ball_center_offset_y : cvt(15)
+        if (_ballOffsetY && findBalls && findBalls.length > 0) {
+          for (let bi = 0; bi < findBalls.length; bi++) {
+            findBalls[bi].y = findBalls[bi].y + _ballOffsetY
+          }
+        }
         haveBalls = findBalls && findBalls.length > 0
         if (this.isProtected) {
           // 已判定为使用了保护罩

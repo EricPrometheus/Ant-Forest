@@ -171,6 +171,10 @@ let default_config = {
   hough_min_radius: null,
   hough_max_radius: null,
   hough_min_dst: null,
+  // 霍夫圆心 y 偏移补偿：能量球是发光球、下部有能量值数字打破正圆，
+  // 霍夫圆检测的圆心系统性偏上 → 画圆和点击都偏上。
+  // 正值=往下补偿。findCircles 返回后给 ball.y 加此值。null 时用默认 cvt(15)。
+  ball_center_offset_y: null,
   // 二次校验
   double_check_collect: false,
   // 快速收集模式
