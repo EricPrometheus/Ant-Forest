@@ -726,7 +726,7 @@ const BaseScanner = function () {
 
   // 检测能量罩
   this.protectDetect = function (filter, name) {
-    filter = typeof filter == null ? '' : filter
+    filter = filter == null ? '' : filter
     let that = this
     // 在新线程中开启监听
     return threads.start(function () {
