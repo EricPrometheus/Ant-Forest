@@ -263,9 +263,9 @@ const BaseScanner = function () {
    */
   this.oneKeyCollectByOcr = function () {
     let screen = _commonFunctions.checkCaptureScreenPermission()
-    let ocrRegion = ((w, h) => [0.2 * w, 0.4 * h, 0.6 * w, 0.3 * h])(_config.device_width, _config.device_height)
-    debugInfo(['尝试ocr识别一键收，识别区域：[{}]', JSON.stringify(ocrRegion)])
-    WarningFloaty.addRectangle('OCR识别区域', ocrRegion)
+    // 全屏 OCR 找"一键收"（按钮位置随版本/界面变，原中部 [0.2,0.4,0.6,0.3] 太窄常漏）
+    let ocrRegion = null
+    debugInfo('尝试ocr识别一键收，识别区域：全屏')
     let ocrCheck = localOcrUtil.recognizeWithBounds(screen, ocrRegion, '一键收')
     if (ocrCheck && ocrCheck.length > 0) {
       let bounds = ocrCheck[0].bounds
