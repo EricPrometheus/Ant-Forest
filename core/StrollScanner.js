@@ -116,12 +116,20 @@ const StrollScanner = function () {
         break
       }
       if (firstRound) {
-        // 首次入口：点"找能量"按钮进入第一个好友
+        // 首次入口：点"找能量"按钮
         debugInfo(['首次入口, click 找能量按钮区域: [{}]', JSON.stringify(region)])
         this.visualHelper.addRectangle('准备点击找能量', region)
         WarningFloaty.addRectangle('逛一逛按钮区域', region, '#00ff00')
         this.visualHelper.displayAndClearAll()
         automator.click(region[0] + region[2] / 2, region[1] + region[3] / 2)
+        sleep(3000)
+        // 新版"找能量"可能落在抽奖活动页（如黄鹤楼），未进好友森林则再点右下"找能量>"跳第二跳
+        // Why: 2026活动运营把找能量改成两跳（主页→活动页→好友森林），老逻辑只跳一次卡在活动页→逛一逛0g
+        if (!_widgetUtils.widgetGetOne(_config.friend_home_check_regex || '.*的蚂蚁森林', 1500)) {
+          warnInfo('点找能量后未进好友森林，可能落在活动页，再点右下找能量跳第二跳')
+          automator.click(parseInt(_config.device_width * 0.89), parseInt(_config.device_height * 0.965))
+          sleep(3000)
+        }
         firstRound = false
       } else {
         // 好友间转场：新版改为向下滑动跳到下一个好友（原为点击逛一逛按钮，新版按钮点了不跳）
