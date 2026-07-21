@@ -136,7 +136,9 @@ const BaseScanner = function () {
   // 收取能量
   this.collectEnergy = function (isOwn) {
     this.collect_operated = false
-    if (!isOwn && _config.use_one_key_collect && (YoloDetection.enabled || _config.image_config.one_key_collect)) {
+    if (!isOwn && _config.use_one_key_collect) {
+      // oneKeyCollectByImg 内部有 OCR fallback（自动定位"一键收"文字，不需手动框配图），
+      // 所以不必要求 YOLO 可用或已配置图片
       this.collectByOneKeyCollect()
       return
     }
@@ -245,12 +247,14 @@ const BaseScanner = function () {
         WarningFloaty.addRectangle('一键收', [collect.left - 10, collect.top - 10, collect.width() + 20, collect.height() + 20])
         clickOneKeyPoint(collect.centerX(), collect.centerY())
         return true
-      } else {
-        warnInfo(['尝试图片查找一键收按钮失败，请重新通过可视化配置配置一键收图片，尽量仅覆盖文字以提高识别准确性'])
       }
+      warnInfo(['图片查找一键收按钮失败，fallback 到 OCR 自动识别（不需手动框配图）'])
     } else {
-      warnInfo(['一键收图片没有配置，无法加载'])
+      debugInfo(['一键收图片未配置，直接用 OCR 自动识别（免手动框配置）'])
     }
+    // Why OCR fallback: 用户痛点是手动配像素框/图片。OCR 自动定位"一键收"文字按钮，
+    // 找到后还自动截图存为 image_config.one_key_collect（下次图片匹配更快）。全程不需手动框。
+    return this.oneKeyCollectByOcr()
   }
 
   /**
